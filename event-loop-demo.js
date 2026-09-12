@@ -15,5 +15,5 @@ Promise.resolve().then(() => {
     console.log("4. Promise.then");
 });
 
-console.log("5. Синхронный код");
+console.log("5. Sinhronnii kod");
 
