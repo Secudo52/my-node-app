@@ -1,31 +1,63 @@
 const http = require('http');
+const EventEmitter = require('events');
+const fs = require('fs');
+const path = require('path');
 
-const STUDENT_NAME = 'Denishchik Daniil Dmitrievich';
-const STUDENT_GROUP = 'Gryppa 477';
-const JOURNAL_NUMBER = 7;
+class AppServer extends EventEmitter {
+    constructor() {
+        super();
+        
+        this.server = http.createServer((req, res) => {
+            this.emit('request:received', { url: req.url, method: req.method });
+            
+            res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
+            res.end('Hello from Event-Driven Server!');
+        });
+    }
 
-function calculatePi(digits) {
-  let pi = 3.0;
-  let sign = 1;
-  for (let i = 2; i < 400000; i += 2) {
-    pi += sign * (4 / (i * (i + 1) * (i + 2)));
-    sign = -sign;
-  }
-  return pi.toFixed(digits);
+    start(port) {
+        this.server.listen(port, () => {
+            this.emit('server:started', port);
+        });
+    }
+
+    stop() {
+        this.server.close(() => {
+            this.emit('server:stopped');
+        });
+    }
 }
 
-const piValue = calculatePi(JOURNAL_NUMBER);
+const app = new AppServer();
+const logFilePath = path.join(__dirname, 'server.log');
 
-const server = http.createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-  res.end(\
-    <p>\</p>
-    <p>\</p>
-    <p>         (      : \): \</p>
-  \);
+function writeLog(message) {
+    const timestamp = new Date().toISOString();
+    const logEntry = `[${timestamp}] ${message}\n`;
+    
+    fs.appendFile(logFilePath, logEntry, (err) => {
+        if (err) console.error('Oshibka loga:', err);
+    });
+}
+
+app.on('server:started', (port) => {
+    const msg = `Server zapyshchen na porty ${port}`;
+    console.log(msg);
+    writeLog(msg); });
+
+app.on('request:received', (requestData) => {
+    const msg = `Polychen zapros: ${requestData.method} ${requestData.url}`;
+    console.log(msg);
+    writeLog(msg); });
+
+app.on('server:stopped', () => {
+    const msg = `Servak ostanovlen`;
+    console.log(msg);
+    writeLog(msg); 
 });
 
-const PORT = 3000;
-server.listen(PORT, () => {
-  console.log(\                  http://localhost:\\);
-});
+app.start(3000);
+
+setTimeout(() => {
+    app.stop();
+}, 10000);
