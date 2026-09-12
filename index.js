@@ -1,5 +1,7 @@
 const http = require('http');
 const EventEmitter = require('events');
+const fs = require('fs');
+const path = require('path');
 
 class AppServer extends EventEmitter {
     constructor() {
@@ -27,17 +29,31 @@ class AppServer extends EventEmitter {
 }
 
 const app = new AppServer();
+const logFilePath = path.join(__dirname, 'server.log');
+
+function writeLog(message) {
+    const timestamp = new Date().toISOString();
+    const logEntry = `[${timestamp}] ${message}\n`;
+    
+    fs.appendFile(logFilePath, logEntry, (err) => {
+        if (err) console.error('Oshibka loga:', err);
+    });
+}
 
 app.on('server:started', (port) => {
-    console.log(`Server zapyshchen na porty ${port}`);
-});
+    const msg = `Server zapyshchen na porty ${port}`;
+    console.log(msg);
+    writeLog(msg); });
 
 app.on('request:received', (requestData) => {
-    console.log(`Polychen zapros: ${requestData.method} ${requestData.url}`);
-});
+    const msg = `Polychen zapros: ${requestData.method} ${requestData.url}`;
+    console.log(msg);
+    writeLog(msg); });
 
 app.on('server:stopped', () => {
-    console.log(`Servak sotanovlen`);
+    const msg = `Servak ostanovlen`;
+    console.log(msg);
+    writeLog(msg); 
 });
 
 app.start(3000);
