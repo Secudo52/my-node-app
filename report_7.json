@@ -1,0 +1,88 @@
+{
+  "targetDir": ".",
+  "totalFolders": 11,
+  "totalFiles": 23,
+  "totalSizeBytes": 23214,
+  "extensions": {
+    "no_ext": {
+      "count": 1,
+      "size": 30
+    },
+    ".js": {
+      "count": 9,
+      "size": 22603
+    },
+    ".json": {
+      "count": 1,
+      "size": 247
+    },
+    ".txt": {
+      "count": 12,
+      "size": 334
+    }
+  },
+  "top5Largest": [
+    {
+      "name": "task3.js",
+      "path": "D:\\Git\\my-node-app\\task3.js",
+      "size": 3491,
+      "ext": ".js"
+    },
+    {
+      "name": "task2.js",
+      "path": "D:\\Git\\my-node-app\\task2.js",
+      "size": 3202,
+      "ext": ".js"
+    },
+    {
+      "name": "test-callbacks.js",
+      "path": "D:\\Git\\my-node-app\\test-callbacks.js",
+      "size": 2721,
+      "ext": ".js"
+    },
+    {
+      "name": "fileOperationsHybrid.js",
+      "path": "D:\\Git\\my-node-app\\fileOperationsHybrid.js",
+      "size": 2553,
+      "ext": ".js"
+    },
+    {
+      "name": "fileOperationsPromises.js",
+      "path": "D:\\Git\\my-node-app\\fileOperationsPromises.js",
+      "size": 2549,
+      "ext": ".js"
+    }
+  ],
+  "top5Smallest": [
+    {
+      "name": "info.txt",
+      "path": "D:\\Git\\my-node-app\\project_7\\data\\info.txt",
+      "size": 6,
+      "ext": ".txt"
+    },
+    {
+      "name": "info.txt",
+      "path": "D:\\Git\\my-node-app\\project_7\\src\\utils\\info.txt",
+      "size": 7,
+      "ext": ".txt"
+    },
+    {
+      "name": "info.txt",
+      "path": "D:\\Git\\my-node-app\\project_7\\src\\info.txt",
+      "size": 12,
+      "ext": ".txt"
+    },
+    {
+      "name": "info.txt",
+      "path": "D:\\Git\\my-node-app\\project_7\\info.txt",
+      "size": 13,
+      "ext": ".txt"
+    },
+    {
+      "name": "info.txt",
+      "path": "D:\\Git\\my-node-app\\project_7\\data\\input\\info.txt",
+      "size": 14,
+      "ext": ".txt"
+    }
+  ]
+}
