@@ -1,39 +1,31 @@
-const fs = require('fs').promises;
-const path = require('path');
+const Koa = require('koa');
+const app = new Koa();
 
-async function runTask1() {
-    const variant = 7; 
-    const fileName = `student_${variant}.txt`;
-    const filePath = path.join(__dirname, fileName);
-
-    const fileData = [
-        "Student: Denishchik Daniil",
-        "Gruppa: 477",
-        `Variant: ${variant}`,
-        `Data: ${new Date().toLocaleString('ru-RU')}`,
-        "Lubimye igry:",
-        "1. Dota 2",
-        "2. Terraria",
-        "3. Fear & Hunger",
-        "4. DeadLock",
-        "5. Alter Ego"
-    ];
-
-    try {
-        await fs.writeFile(filePath, fileData.join('\n'), 'utf8');
-        console.log(`Sozdan fayl: ${fileName}`);
-
-        const content = await fs.readFile(filePath, 'utf8');
-        const linesCount = content.split('\n').length;
-        await fs.appendFile(filePath, `\nKolichestvo zapisey: ${linesCount + 1}`, 'utf8');
-
-        const finalContent = await fs.readFile(filePath, 'utf8');
-        console.log('Soderzhimoe fayla:\n---------------------------------');
-        console.log(finalContent);
-        console.log('---------------------------------');
-    } catch (error) {
-        console.error('Oshibka pri vipolnenii Zadaniy 1:', error.message);
+app.use(async ctx => {
+    if (ctx.path === '/') {
+        ctx.type = 'html';
+        ctx.body = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>LR 15</title>
+            </head>
+            <body>
+                <h1>Laboratornaya rabota №15</h1>
+                <p>Student: Daniil Denishchik</p>
+                <p>Gruppa: 477</p>
+                <p>Data: ${new Date().toLocaleString('ru-RU')}</p>
+                <p>Privetstvennoe soobshenie: Bazoviy server Koa.js uspeshno zapushen.</p>
+            </body>
+            </html>
+        `;
+    } else {
+        ctx.status = 404;
+        ctx.body = 'Not Found';
     }
-}
+});
 
-runTask1();
+const PORT = 3000;
+app.listen(PORT, () => {
+    console.log(`Zadanie 1: Server zapushen na http://localhost:${PORT}`);
+});
