@@ -1,51 +1,55 @@
-const Koa = require('koa');
-const Router = require('@koa/router');
+const express = require('express');
+const compression = require('compression');
+const rateLimit = require('express-rate-limit');
+const app = express();
+const port = 3000;
 
-const app = new Koa();
-const router = new Router();
-
-app.use(async (ctx, next) => {
-    try {
-        await next();
-    } catch (err) {
-        ctx.status = err.status || 500;
-        ctx.body = {
-            error: err.message || 'Vnutrennyaya oshibka servera',
-            status: ctx.status
-        };
-    }
+const limiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 100,
+    message: { error: "Slishkom mnogo zaprosov", status: 429 }
 });
 
-app.use(async (ctx, next) => {
+const loggerMiddleware = (req, res, next) => {
     const start = Date.now();
-    await next();
-    const ms = Date.now() - start;
-    
-    const d = new Date();
-    const pad = (n) => n.toString().padStart(2, '0');
-    const formattedDate = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-    
-    console.log(`[${formattedDate}] ${ctx.method} ${ctx.path} - ${ms}ms`);
-});
-
-const checkAuth = async (ctx, next) => {
-    if (!ctx.headers.authorization) {
-        ctx.throw(401, 'Otsutstvuet zagolovok Authorization');
-    }
-    await next();
+    res.on('finish', () => {
+        const duration = Date.now() - start;
+        const date = new Date().toISOString().replace('T', ' ').substring(0, 19);
+        console.log(`[${date}] ${req.method} ${req.originalUrl} ${res.statusCode} - ${duration}ms`);
+    });
+    next();
 };
 
-router.get('/protected', checkAuth, (ctx) => {
-    ctx.body = { message: 'Dostup k zashishennomu marshrutu razreshen' };
+app.use(loggerMiddleware);
+app.use(compression());
+app.use(limiter);
+app.use(express.json());
+
+app.get('/api/books', (req, res) => {
+    res.json([{ id: 1, title: "Primernaya kniga" }]);
 });
 
-router.get('/error', (ctx) => {
-    throw new Error('Testovaya oshibka dlya proverki middleware');
+app.get('/error', (req, res) => {
+    throw new Error("Sinteticheskaya oshibka");
 });
 
-app.use(router.routes()).use(router.allowedMethods());
+app.get('/async-error', async (req, res, next) => {
+    try {
+        await new Promise((_, reject) => setTimeout(() => reject(new Error("Asinhronnaya oshibka")), 100));
+    } catch (err) {
+        next(err);
+    }
+});
 
-const PORT = 3000;
-app.listen(PORT, () => {
-    console.log(`Zadanie 3: Server zapushen na http://localhost:${PORT}`);
+app.use((err, req, res, next) => {
+    console.log(`Oshibka poymana: ${err.message}`);
+    res.status(500).json({
+        error: "Vnutrennyaya oshibka servera",
+        message: err.message,
+        status: 500
+    });
+});
+
+app.listen(port, () => {
+    console.log(`Server zapushen na portu ${port}`);
 });
