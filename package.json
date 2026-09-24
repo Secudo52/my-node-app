@@ -12,6 +12,7 @@
   "type": "commonjs",
   "dependencies": {
     "@koa/router": "^15.7.0",
+    "express": "^5.2.1",
     "koa": "^3.2.1",
     "koa-bodyparser": "^4.4.1"
   }
