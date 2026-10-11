@@ -1,31 +1,33 @@
-const Koa = require('koa');
-const app = new Koa();
+#!/usr/bin/env node
 
-app.use(async ctx => {
-    if (ctx.path === '/') {
-        ctx.type = 'html';
-        ctx.body = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>LR 15</title>
-            </head>
-            <body>
-                <h1>Laboratornaya rabota №15</h1>
-                <p>Student: Daniil Denishchik</p>
-                <p>Gruppa: 477</p>
-                <p>Data: ${new Date().toLocaleString('ru-RU')}</p>
-                <p>Privetstvennoe soobshenie: Bazoviy server Koa.js uspeshno zapushen.</p>
-            </body>
-            </html>
-        `;
-    } else {
-        ctx.status = 404;
-        ctx.body = 'Not Found';
-    }
-});
+const args = process.argv.slice(2);
 
-const PORT = 3000;
-app.listen(PORT, () => {
-    console.log(`Zadanie 1: Server zapushen na http://localhost:${PORT}`);
-});
+function showHelp() {
+    console.log('Ispolzovanie: my-cli <komanda> [argumenti]');
+    console.log('Dostupnie komandi:');
+    console.log('  greet <imya>   - poprivetstvovat polzovatelya');
+    console.log('  info           - vivesti informaciyu o gruppe');
+}
+
+if (args.length === 0 || args[0] === '--help' || args[0] === '-h') {
+    showHelp();
+    process.exit(0);
+}
+
+const command = args[0];
+
+if (command === 'greet') {
+    const name = args[1] || 'Polzovatel';
+    console.log(`Privet, ${name}! Dobro pozhalovat v CLI-prilozhenie gruppi 477.`);
+    process.exit(0);
+} else if (command === 'info') {
+    console.log('Gruppa: 477');
+    console.log('Student: Daniil Denishchik');
+    console.log('Laboratornaya rabota: No17');
+    console.log('Data: 2026-10-11');
+    process.exit(0);
+} else {
+    console.error(`Oshibka: neizvestnaya komanda "${command}"`);
+    console.error('Dlya spravki ispolzuyte: my-cli --help');
+    process.exit(1);
+}
