@@ -1,0 +1,3 @@
+[2026-09-24T06:35:18.826Z] GET /api/books/stats
+[2026-09-24T06:35:25.839Z] GET /api/books - query: {"limit":"2","page":"1","sort":"-year","search":"roman"}
+[2026-09-24T06:35:43.183Z] POST /api/books - body: {"title":"Novaya","author":"Pushkin","year":1830,"genre":"poeziya"}
