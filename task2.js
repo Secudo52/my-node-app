@@ -1,70 +1,56 @@
-const express = require('express');
-const app = express();
-const port = 3000;
+#!/usr/bin/env node
 
-app.use(express.json());
+const { Command } = require('commander');
+const program = new Command();
 
-let books = [
-    { id: 1, title: "Voyna i mir", author: "Tolstoy", year: 1869 },
-    { id: 2, title: "Prestuplenie i nakazanie", author: "Dostoevskiy", year: 1866 }
-];
-let nextId = 3;
+program
+    .name('my-cli')
+    .description('CLI-prilozhenie dlya laboratornoy raboti No17')
+    .version('1.0.0', '-V, --version', 'output the version number')
+    .option('-v, --verbose', 'podrobniy vivod');
 
-app.get('/api/books/search', (req, res) => {
-    const author = req.query.author;
-    if (!author) {
-        return res.status(400).json({ error: "Ukazhite avtora", status: 400 });
-    }
-    const filtered = books.filter(b => b.author.toLowerCase().includes(author.toLowerCase()));
-    res.json(filtered);
-});
+program
+    .command('generate')
+    .description('sgenerirovat otchet')
+    .option('-t, --type <type>', 'tip otcheta (po umolchaniyu: "html")', 'html')
+    .option('-o, --output <path>', 'put dlya sohraneniya')
+    .option('-f, --force', 'perezapisat sushestvuyushiy fayl')
+    .option('--dry-run', 'pokazat chto budet sdelano bez vipolneniya')
+    .action((options) => {
+        const globalOptions = program.opts();
+        const validTypes = ['html', 'pdf', 'json', 'csv'];
 
-app.get('/api/books', (req, res) => {
-    res.json(books);
-});
+        if (!validTypes.includes(options.type)) {
+            console.error(`Oshibka: nedopustimiy tip otcheta "${options.type}".`);
+            console.error(`Dopustimie znacheniya: ${validTypes.join(', ')}`);
+            process.exit(1);
+        }
 
-app.get('/api/books/:id', (req, res) => {
-    const book = books.find(b => b.id === parseInt(req.params.id));
-    if (!book) {
-        return res.status(404).json({ error: "Kniga ne naydena", status: 404 });
-    }
-    res.json(book);
-});
+        const outputPath = options.output || `./output.${options.type}`;
 
-app.post('/api/books', (req, res) => {
-    const { title, author, year } = req.body;
-    if (!title || !author || !year) {
-        return res.status(400).json({ error: "Nevalidnie dannie", status: 400 });
-    }
-    const newBook = { id: nextId++, title, author, year };
-    books.push(newBook);
-    res.status(201).json(newBook);
-});
+        if (options.dryRun) {
+            console.log(`[DRY-RUN] Budet sgenerirovan otchet tipa: ${options.type}`);
+            console.log(`[DRY-RUN] Fayl budet sohranen v: ${outputPath}`);
+            console.log(`[DRY-RUN] Deystviya ne vipolneni (rezhim proverki)`);
+            return;
+        }
 
-app.put('/api/books/:id', (req, res) => {
-    const book = books.find(b => b.id === parseInt(req.params.id));
-    if (!book) {
-        return res.status(404).json({ error: "Kniga ne naydena", status: 404 });
-    }
-    const { title, author, year } = req.body;
-    if (!title && !author && !year) {
-        return res.status(400).json({ error: "Nevalidnie dannie", status: 400 });
-    }
-    if (title) book.title = title;
-    if (author) book.author = author;
-    if (year) book.year = year;
-    res.json(book);
-});
+        if (globalOptions.verbose) {
+            console.log(`[VERBOSE] Zapusk generacii otcheta...`);
+            console.log(`[VERBOSE] Tip otcheta: ${options.type}`);
+            console.log(`[VERBOSE] Put sohraneniya: ${outputPath}`);
+        }
 
-app.delete('/api/books/:id', (req, res) => {
-    const index = books.findIndex(b => b.id === parseInt(req.params.id));
-    if (index === -1) {
-        return res.status(404).json({ error: "Kniga ne naydena", status: 404 });
-    }
-    books.splice(index, 1);
-    res.json({ message: "Uspeshno udaleno" });
-});
+        console.log(`Otchet uspeshno sgenerirovan: ${outputPath}`);
+    });
 
-app.listen(port, () => {
-    console.log(`Server zapushen na portu ${port}`);
-});
+program
+    .command('convert')
+    .description('konvertirovat fayl')
+    .option('-i, --input <path>', 'ishodniy fayl')
+    .option('-o, --output <path>', 'vihodniy fayl')
+    .action((options) => {
+        console.log(`Konvertaciya ${options.input || 'fayla'} vipolnena.`);
+    });
+
+program.parse(process.argv);

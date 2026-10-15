@@ -1,68 +1,33 @@
-const express = require('express');
-const app = express();
-const port = 3000;
+#!/usr/bin/env node
 
-app.get('/', (req, res) => {
-    const date = new Date().toLocaleString('ru-RU');
-    res.send(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>Laboratornaya rabota 16</title>
-        </head>
-        <body>
-            <h1>Laboratornaya rabota 16</h1>
-            <p>Gruppa: 477</p>
-            <p>Tekushaya data i vremya: ${date}</p>
-            <p>Privet! Eto bazoviy server na Express.js.</p>
-            <h3>Spisok dostupnih marshrutov:</h3>
-            <ul>
-                <li><a href="/">/ (Glavnaya)</a></li>
-                <li><a href="/about">/about (O razrabotchike)</a></li>
-                <li><a href="/contacts">/contacts (Kontakti)</a></li>
-            </ul>
-        </body>
-        </html>
-    `);
-});
+const args = process.argv.slice(2);
 
-app.get('/about', (req, res) => {
-    res.send(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>O razrabotchike</title>
-        </head>
-        <body>
-            <h1>O razrabotchike</h1>
-            <p>Student: Daniil Denishchik</p>
-            <p>Variant: 7</p>
-            <a href="/">Nazad</a>
-        </body>
-        </html>
-    `);
-});
+function showHelp() {
+    console.log('Ispolzovanie: my-cli <komanda> [argumenti]');
+    console.log('Dostupnie komandi:');
+    console.log('  greet <imya>   - poprivetstvovat polzovatelya');
+    console.log('  info           - vivesti informaciyu o gruppe');
+}
 
-app.get('/contacts', (req, res) => {
-    res.send(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>Kontakti</title>
-        </head>
-        <body>
-            <h1>Kontaktnaya informaciya</h1>
-            <p>Email: daniil.denishchik@example.com</p>
-            <p>Telegram: @daniil_477</p>
-            <a href="/">Nazad</a>
-        </body>
-        </html>
-    `);
-});
+if (args.length === 0 || args[0] === '--help' || args[0] === '-h') {
+    showHelp();
+    process.exit(0);
+}
 
-app.listen(port, () => {
-    console.log(`Server zapushen na portu ${port}`);
-});
+const command = args[0];
+
+if (command === 'greet') {
+    const name = args[1] || 'Polzovatel';
+    console.log(`Privet, ${name}! Dobro pozhalovat v CLI-prilozhenie gruppi 477.`);
+    process.exit(0);
+} else if (command === 'info') {
+    console.log('Gruppa: 477');
+    console.log('Student: Daniil Denishchik');
+    console.log('Laboratornaya rabota: No17');
+    console.log('Data: 2026-10-11');
+    process.exit(0);
+} else {
+    console.error(`Oshibka: neizvestnaya komanda "${command}"`);
+    console.error('Dlya spravki ispolzuyte: my-cli --help');
+    process.exit(1);
+}
