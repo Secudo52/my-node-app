@@ -7,7 +7,7 @@
     "my-cli": "./bin/my-cli.js"
   },
   "scripts": {
-    "test": "jest tests/"
+    "test": "node task1.js"
   },
   "keywords": [],
   "author": "",

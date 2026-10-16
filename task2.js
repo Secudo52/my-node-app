@@ -1,56 +1,45 @@
-#!/usr/bin/env node
+const os = require('os');
 
-const { Command } = require('commander');
-const program = new Command();
+const cpus = os.cpus();
+const cpuCount = cpus.length;
+const cpuModel = cpus.length > 0 ? cpus[0].model : 'Neopredeleno';
 
-program
-    .name('my-cli')
-    .description('CLI-prilozhenie dlya laboratornoy raboti No17')
-    .version('1.0.0', '-V, --version', 'output the version number')
-    .option('-v, --verbose', 'podrobniy vivod');
+let totalSpeed = 0;
+for (const cpu of cpus) {
+    totalSpeed += cpu.speed;
+}
+const avgSpeed = cpus.length > 0 ? Math.round(totalSpeed / cpus.length) : 0;
 
-program
-    .command('generate')
-    .description('sgenerirovat otchet')
-    .option('-t, --type <type>', 'tip otcheta (po umolchaniyu: "html")', 'html')
-    .option('-o, --output <path>', 'put dlya sohraneniya')
-    .option('-f, --force', 'perezapisat sushestvuyushiy fayl')
-    .option('--dry-run', 'pokazat chto budet sdelano bez vipolneniya')
-    .action((options) => {
-        const globalOptions = program.opts();
-        const validTypes = ['html', 'pdf', 'json', 'csv'];
+const totalMemBytes = os.totalmem();
+const freeMemBytes = os.freemem();
+const usedMemBytes = totalMemBytes - freeMemBytes;
 
-        if (!validTypes.includes(options.type)) {
-            console.error(`Oshibka: nedopustimiy tip otcheta "${options.type}".`);
-            console.error(`Dopustimie znacheniya: ${validTypes.join(', ')}`);
-            process.exit(1);
-        }
+const totalMemGB = (totalMemBytes / (1024 ** 3)).toFixed(2);
+const freeMemGB = (freeMemBytes / (1024 ** 3)).toFixed(2);
+const usedMemGB = (usedMemBytes / (1024 ** 3)).toFixed(2);
+const usedPercent = ((usedMemBytes / totalMemBytes) * 100).toFixed(1);
+const freePercent = ((freeMemBytes / totalMemBytes) * 100).toFixed(1);
 
-        const outputPath = options.output || `./output.${options.type}`;
+const loadAvg = os.loadavg();
+const isWindows = os.platform() === 'win32';
+const loadAvgStr = isWindows ? '[Nedostupno dlya Windows]' : `[${loadAvg.map(n => n.toFixed(2)).join(', ')}]`;
 
-        if (options.dryRun) {
-            console.log(`[DRY-RUN] Budet sgenerirovan otchet tipa: ${options.type}`);
-            console.log(`[DRY-RUN] Fayl budet sohranen v: ${outputPath}`);
-            console.log(`[DRY-RUN] Deystviya ne vipolneni (rezhim proverki)`);
-            return;
-        }
+console.log('=== Informaciya o processore ===');
+console.log(`Kolichestvo logicheskih yader: ${cpuCount}`);
+console.log(`Model processora:          ${cpuModel}`);
+console.log(`Srednyaya chastota:            ${avgSpeed} MGc\n`);
 
-        if (globalOptions.verbose) {
-            console.log(`[VERBOSE] Zapusk generacii otcheta...`);
-            console.log(`[VERBOSE] Tip otcheta: ${options.type}`);
-            console.log(`[VERBOSE] Put sohraneniya: ${outputPath}`);
-        }
+console.log('=== Informaciya o pamyati ===');
+console.log(`Obshiy obyom:                ${totalMemGB} GB`);
+console.log(`Svobodno:                   ${freeMemGB} GB`);
+console.log(`Ispolzovano:               ${usedMemGB} GB (${usedPercent}%)\n`);
 
-        console.log(`Otchet uspeshno sgenerirovan: ${outputPath}`);
-    });
+console.log('=== Srednyaya zagruzka sistemi ===');
+console.log(`Load Average (1, 5, 15 min): ${loadAvgStr}\n`);
 
-program
-    .command('convert')
-    .description('konvertirovat fayl')
-    .option('-i, --input <path>', 'ishodniy fayl')
-    .option('-o, --output <path>', 'vihodniy fayl')
-    .action((options) => {
-        console.log(`Konvertaciya ${options.input || 'fayla'} vipolnena.`);
-    });
-
-program.parse(process.argv);
+console.log('Gruppa: 477');
+if (freePercent < 20) {
+    console.log(`Preduprezhdenie: malo svobodnoy pamyati! Svobodno lish ${freePercent}%`);
+} else {
+    console.log('Pamyat v norme');
+}

@@ -1,33 +1,37 @@
-#!/usr/bin/env node
+const os = require('os');
 
-const args = process.argv.slice(2);
-
-function showHelp() {
-    console.log('Ispolzovanie: my-cli <komanda> [argumenti]');
-    console.log('Dostupnie komandi:');
-    console.log('  greet <imya>   - poprivetstvovat polzovatelya');
-    console.log('  info           - vivesti informaciyu o gruppe');
+function formatUptime(seconds) {
+    const totalSeconds = Math.floor(seconds);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const secs = totalSeconds % 60;
+    return `${hours} ch ${minutes} min ${secs} sek`;
 }
 
-if (args.length === 0 || args[0] === '--help' || args[0] === '-h') {
-    showHelp();
-    process.exit(0);
+function getPlatformDescription(platform) {
+    if (platform === 'win32') {
+        return 'Vi rabotaete v Windows';
+    } else if (platform === 'linux') {
+        return 'Vi rabotaete v Linux';
+    } else if (platform === 'darwin') {
+        return 'Vi rabotaete v macOS';
+    } else {
+        return 'Neizvestnaya platforma';
+    }
 }
 
-const command = args[0];
+const platform = os.platform();
+const type = os.type();
+const arch = os.arch();
+const release = os.release();
+const hostname = os.hostname();
+const uptime = os.uptime();
 
-if (command === 'greet') {
-    const name = args[1] || 'Polzovatel';
-    console.log(`Privet, ${name}! Dobro pozhalovat v CLI-prilozhenie gruppi 477.`);
-    process.exit(0);
-} else if (command === 'info') {
-    console.log('Gruppa: 477');
-    console.log('Student: Daniil Denishchik');
-    console.log('Laboratornaya rabota: No17');
-    console.log('Data: 2026-10-11');
-    process.exit(0);
-} else {
-    console.error(`Oshibka: neizvestnaya komanda "${command}"`);
-    console.error('Dlya spravki ispolzuyte: my-cli --help');
-    process.exit(1);
-}
+console.log('=== Informaciya o sisteme (gruppa 477) ===');
+console.log(`Platforma:      ${platform}`);
+console.log(`Tip OS:         ${type}`);
+console.log(`Arhitektura:    ${arch}`);
+console.log(`Versiya OS:     ${release}`);
+console.log(`Imya hosta:     ${hostname}`);
+console.log(`Vremya raboti:  ${formatUptime(uptime)}\n`);
+console.log(getPlatformDescription(platform));
