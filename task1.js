@@ -1,37 +1,28 @@
-const os = require('os');
+const EventEmitter = require('events');
 
-function formatUptime(seconds) {
-    const totalSeconds = Math.floor(seconds);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const secs = totalSeconds % 60;
-    return `${hours} ch ${minutes} min ${secs} sek`;
-}
+const emitter = new EventEmitter();
 
-function getPlatformDescription(platform) {
-    if (platform === 'win32') {
-        return 'Vi rabotaete v Windows';
-    } else if (platform === 'linux') {
-        return 'Vi rabotaete v Linux';
-    } else if (platform === 'darwin') {
-        return 'Vi rabotaete v macOS';
-    } else {
-        return 'Neizvestnaya platforma';
-    }
-}
+emitter.on('greet', (name) => {
+    console.log(`[greet] Privet, ${name}!`);
+});
 
-const platform = os.platform();
-const type = os.type();
-const arch = os.arch();
-const release = os.release();
-const hostname = os.hostname();
-const uptime = os.uptime();
+emitter.on('info', (group) => {
+    console.log(`[info] Gruppa: ${group}`);
+});
 
-console.log('=== Informaciya o sisteme (gruppa 477) ===');
-console.log(`Platforma:      ${platform}`);
-console.log(`Tip OS:         ${type}`);
-console.log(`Arhitektura:    ${arch}`);
-console.log(`Versiya OS:     ${release}`);
-console.log(`Imya hosta:     ${hostname}`);
-console.log(`Vremya raboti:  ${formatUptime(uptime)}\n`);
-console.log(getPlatformDescription(platform));
+emitter.on('bye', () => {
+    console.log('[bye] Do svidaniya!');
+});
+
+console.log('=== Demonstraciya EventEmitter ===\n');
+
+emitter.emit('greet', 'Ivan');
+emitter.emit('info', '477');
+emitter.emit('bye');
+
+console.log('');
+const unknownResult = emitter.emit('unknown');
+console.log(`Sobitie "unknown" bez slushateley: ${unknownResult}`);
+
+const greetResult = emitter.emit('greet', 'Ivan');
+console.log(`Sobitie "greet" so slushatelyami: ${greetResult}`);

@@ -1,57 +1,77 @@
-const os = require('os');
+const EventEmitter = require('events');
 
-function maskMac(mac) {
-    if (!mac || mac === '00:00:00:00:00:00') return mac;
-    const parts = mac.split(/[:-]/);
-    if (parts.length === 6) {
-        return `${parts[0]}:${parts[1]}:${parts[2]}:**:**:**`;
+class DatabaseConnection extends EventEmitter {
+    constructor(dbName) {
+        super();
+        this.dbName = dbName;
+        this.connected = false;
     }
-    return mac;
-}
 
-const interfaces = os.networkInterfaces();
-const interfaceNames = Object.keys(interfaces);
+    connect() {
+        console.log('[EVENT] Podklyuchenie k BD...');
+        this.connected = true;
+        this.emit('connect');
+    }
 
-let totalInterfacesCount = interfaceNames.length;
-let mainInterface = null;
-
-console.log('=== Setevie interfeysi ===');
-for (const name of interfaceNames) {
-    const netList = interfaces[name] || [];
-    for (const net of netList) {
-        const family = net.family === 'IPv4' || net.family === 4 ? 'IPv4' : 'IPv6';
-        if (family === 'IPv4') {
-            console.log(`Interfeys: ${name}`);
-            console.log(`  IPv4:        ${net.address}`);
-            console.log(`  MAC:         ${maskMac(net.mac)}`);
-            console.log(`  Vnutrenniy:  ${net.internal ? 'da' : 'net'}\n`);
-            if (!mainInterface && !net.internal) {
-                mainInterface = `${name} (${net.address})`;
-            }
+    query(sql) {
+        console.log(`[EVENT] Vipolnenie zaprosa: ${sql}`);
+        let result;
+        if (sql.includes('SELECT')) {
+            result = '50 zapisey';
+        } else if (sql.includes('INSERT')) {
+            result = '1 zapis dobavlena';
+        } else {
+            result = 'uspeshno';
         }
+        this.emit('query', sql, result);
+    }
+
+    close() {
+        console.log('[EVENT] Zakritie soedineniya');
+        this.connected = false;
+        this.emit('close');
+    }
+
+    triggerError(errMsg) {
+        this.emit('error', new Error(errMsg));
     }
 }
 
-if (!mainInterface && interfaceNames.length > 0) {
-    mainInterface = interfaceNames[0];
+function runDemo() {
+    console.log('=== DatabaseConnection (gruppa 477) ===');
+
+    const db = new DatabaseConnection('main_db');
+
+    db.on('connect', () => {
+        console.log('[EVENT] Soedinenie ustanovleno');
+    });
+
+    db.on('query', (sql, result) => {
+        console.log(`[EVENT] Rezultat: ${result}`);
+    });
+
+    db.on('close', () => {
+        console.log('[EVENT] Soedinenie zakrito');
+    });
+
+    db.on('error', (err) => {
+        console.log(`[EVENT] Oshibka: ${err.message}`);
+    });
+
+    db.connect();
+    db.query('SELECT * FROM students');
+    db.query('INSERT INTO students');
+    db.close();
+
+    console.log('\n=== Demonstraciya oshibki ===');
+    db.triggerError('Connection timeout');
 }
 
-console.log(`Vsego interfeysov:        ${totalInterfacesCount}`);
-console.log(`Osnovnoy interfeys:       ${mainInterface || 'ne nayden'}\n`);
-
-console.log('=== Informaciya o polzovatele ===');
-let userInfo;
-try {
-    userInfo = os.userInfo();
-} catch (e) {
-    userInfo = { username: 'unknown', uid: -1, homedir: '', shell: null };
+if (process.argv.includes('--crash')) {
+    const dbUncaught = new DatabaseConnection('fail_db');
+    dbUncaught.triggerError('Unhandled connection error');
+} else {
+    runDemo();
 }
 
-const isRoot = (userInfo.username === 'root' || userInfo.uid === 0) ? 'da' : 'net';
-
-console.log(`Imya polzovatelya:         ${userInfo.username}`);
-console.log(`UID:                      ${userInfo.uid}`);
-console.log(`Domashnyaya direktoriya:      ${userInfo.homedir}\n`);
-
-console.log('Gruppa:                   477');
-console.log(`Proverka root:            ${isRoot}`);
+module.exports = DatabaseConnection;
