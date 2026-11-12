@@ -1,0 +1,21 @@
+{
+  "name": "lab23-mongodb",
+  "version": "1.0.0",
+  "description": "Laboratornaya rabota No23: MongoDB i Node.js",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "task1": "node mongodb-connect.js",
+    "task2": "node mongodb-crud.js",
+    "task3": "node mongodb-advanced.js",
+    "task4": "node mongodb-transactions.js"
+  },
+  "dependencies": {
+    "@koa/router": "^13.0.1",
+    "dotenv": "^16.4.5",
+    "koa": "^2.15.3",
+    "koa-bodyparser": "^4.4.1",
+    "mongodb": "^6.9.0",
+    "ws": "^8.18.0"
+  }
+}
