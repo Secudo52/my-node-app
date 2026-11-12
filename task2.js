@@ -1,45 +1,60 @@
-const os = require('os');
+const EventEmitter = require('events');
 
-const cpus = os.cpus();
-const cpuCount = cpus.length;
-const cpuModel = cpus.length > 0 ? cpus[0].model : 'Neopredeleno';
+const emitter = new EventEmitter();
 
-let totalSpeed = 0;
-for (const cpu of cpus) {
-    totalSpeed += cpu.speed;
-}
-const avgSpeed = cpus.length > 0 ? Math.round(totalSpeed / cpus.length) : 0;
+let onCount = 0;
+let onceCount = 0;
 
-const totalMemBytes = os.totalmem();
-const freeMemBytes = os.freemem();
-const usedMemBytes = totalMemBytes - freeMemBytes;
+emitter.on('tick', (num) => {
+    onCount++;
+    console.log(`[tick #${num}] on-slushatel`);
+});
 
-const totalMemGB = (totalMemBytes / (1024 ** 3)).toFixed(2);
-const freeMemGB = (freeMemBytes / (1024 ** 3)).toFixed(2);
-const usedMemGB = (usedMemBytes / (1024 ** 3)).toFixed(2);
-const usedPercent = ((usedMemBytes / totalMemBytes) * 100).toFixed(1);
-const freePercent = ((freeMemBytes / totalMemBytes) * 100).toFixed(1);
+emitter.once('tick', (num) => {
+    onceCount++;
+    console.log(`[tick #${num}] once-slushatel`);
+});
 
-const loadAvg = os.loadavg();
-const isWindows = os.platform() === 'win32';
-const loadAvgStr = isWindows ? '[Nedostupno dlya Windows]' : `[${loadAvg.map(n => n.toFixed(2)).join(', ')}]`;
+console.log('=== Sravnenie on i once ===');
+emitter.emit('tick', 1);
+emitter.emit('tick', 2);
+emitter.emit('tick', 3);
 
-console.log('=== Informaciya o processore ===');
-console.log(`Kolichestvo logicheskih yader: ${cpuCount}`);
-console.log(`Model processora:          ${cpuModel}`);
-console.log(`Srednyaya chastota:            ${avgSpeed} MGc\n`);
+console.log(`\non-slushatel vizvan: ${onCount} raza`);
+console.log(`once-slushatel vizvan: ${onceCount} raz\n`);
 
-console.log('=== Informaciya o pamyati ===');
-console.log(`Obshiy obyom:                ${totalMemGB} GB`);
-console.log(`Svobodno:                   ${freeMemGB} GB`);
-console.log(`Ispolzovano:               ${usedMemGB} GB (${usedPercent}%)\n`);
+console.log('=== Upravlenie podpiskami ===');
 
-console.log('=== Srednyaya zagruzka sistemi ===');
-console.log(`Load Average (1, 5, 15 min): ${loadAvgStr}\n`);
+const testEmitter = new EventEmitter();
+const listener1 = () => {};
+const listener2 = () => {};
+const listener3 = () => {};
 
-console.log('Gruppa: 477');
-if (freePercent < 20) {
-    console.log(`Preduprezhdenie: malo svobodnoy pamyati! Svobodno lish ${freePercent}%`);
-} else {
-    console.log('Pamyat v norme');
-}
+testEmitter.on('myEvent', listener1);
+testEmitter.on('myEvent', listener2);
+testEmitter.on('myEvent', listener3);
+
+console.log(`Slushateley do udaleniya: ${testEmitter.listenerCount('myEvent')}`);
+
+testEmitter.removeListener('myEvent', listener2);
+console.log(`Slushateley posle udaleniya odnogo: ${testEmitter.listenerCount('myEvent')}`);
+
+testEmitter.removeAllListeners('myEvent');
+console.log(`Slushateley posle removeAllListeners: ${testEmitter.listenerCount('myEvent')}\n`);
+
+console.log('=== Poryadok vizova ===');
+const orderEmitter = new EventEmitter();
+
+orderEmitter.on('run', () => {
+    console.log('1. Perviy slushatel (gruppa 477)');
+});
+
+orderEmitter.on('run', () => {
+    console.log('2. Vtoroy slushatel');
+});
+
+orderEmitter.on('run', () => {
+    console.log('3. Tretiy slushatel');
+});
+
+orderEmitter.emit('run');
