@@ -1,0 +1,13 @@
+{
+  "name": "lab21-streams",
+  "version": "1.0.0",
+  "description": "Laboratornaya rabota No21: Potoki v Node.js",
+  "main": "stream-readable.js",
+  "scripts": {
+    "task1": "node stream-readable.js",
+    "task2": "node stream-writable.js",
+    "task3": "node stream-pipe.js",
+    "task4": "node stream-transform.js",
+    "task5": "node stream-pipeline.js"
+  }
+}
