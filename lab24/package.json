@@ -1,0 +1,22 @@
+{
+  "name": "lab24-rest-api",
+  "version": "1.0.0",
+  "description": "Laboratornaya rabota No24: REST API na Koa.js i MongoDB",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "test": "node tests/run.js",
+    "test:coverage": "node tests/coverage.js"
+  },
+  "dependencies": {
+    "@koa/cors": "^5.0.0",
+    "@koa/router": "^13.0.1",
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.5",
+    "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
+    "koa": "^2.15.3",
+    "koa-bodyparser": "^4.4.1",
+    "koa-helmet": "^7.0.2"
+  }
+}

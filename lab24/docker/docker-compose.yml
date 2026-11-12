@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/bbmo_01_23
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo:7.0
+    ports:
+      - "27017:27017"
